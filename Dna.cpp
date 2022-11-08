@@ -134,9 +134,6 @@ int Dna::promoter_at(int pos) {
                 PROM_SEQ[motif_id] == seq_[search_pos] ? 0 : 1;
         dist_lead += prom_dist[motif_id];
     }
-
-
-
     return dist_lead;
 }
 
