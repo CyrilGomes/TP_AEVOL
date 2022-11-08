@@ -34,6 +34,7 @@ using namespace std;
 #include "ExpManager.h"
 #include "AeTime.h"
 #include "Gaussian.h"
+#include "omp.h"
 
 // For time tracing
 #include "Timetracer.h"
@@ -75,6 +76,7 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
     target = new double[FUZZY_SAMPLING];
     double geometric_area = 0.0;
+    #pragma omp parallel for reduction(+:geometric_area) 
     for (int i = 0; i < FUZZY_SAMPLING; i++) {
         double pt_i = ((double) i) / (double) FUZZY_SAMPLING;
 
@@ -97,13 +99,13 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
 
     // Initializing the PRNGs
+    #pragma omp parallel for 
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
 
     // Generate a random organism that is better than nothing
-    double r_compare = 0;
-
+    double r_compare = 0;  
     while (r_compare >= 0) {
         auto random_organism = std::make_shared<Organism>(init_length_dna, rng_->gen(0, Threefry::MUTATION));
         random_organism->locate_promoters();
@@ -118,6 +120,7 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
     printf("Populating the environment\n");
 
     // Create a population of clones based on the randomly generated organism
+    #pragma omp parallel for
     for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
         prev_internal_organisms_[indiv_id] = internal_organisms_[indiv_id] =
                 std::make_shared<Organism>(internal_organisms_[0]);
@@ -138,6 +141,7 @@ ExpManager::ExpManager(int time) {
     load(time);
 
     double geometric_area = 0;
+    #pragma omp parallel for reduction(+:geometric_area)
     for (int i = 0; i < FUZZY_SAMPLING - 1; i++) {
         // Computing a trapezoid area
         geometric_area += ((fabs(target[i]) + fabs(target[i + 1])) / (2 * (double) FUZZY_SAMPLING));
@@ -146,6 +150,8 @@ ExpManager::ExpManager(int time) {
     printf("Initialized environmental target %f\n", geometric_area);
 
     dna_mutator_array_ = new DnaMutator *[nb_indivs_];
+
+    #pragma omp parallel for 
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
