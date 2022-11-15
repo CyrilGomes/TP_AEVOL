@@ -35,6 +35,8 @@
 #endif
 #include "Abstract_ExpManager.h"
 #include "ExpManager.h"
+#include "omp.h"
+
 
 void print_help(char* prog_path) {
     // Get the program file-name in prog_name (strip prog_path of the path)
@@ -53,7 +55,6 @@ void print_help(char* prog_path) {
     printf("*                                                                            *\n");
     printf("* This is a mini-version with a cutdown biological model and a lot of        *\n");
     printf("* features missing.                                                          *\n");
-
     printf("*        IF YOU WANT TO USE IT TO STUDY EVOLUTION, DO NOT DO IT !            *\n");
     printf("*                                                                            *\n");
     printf("******************************************************************************\n");
@@ -71,6 +72,7 @@ void print_help(char* prog_path) {
     printf("  -b, --backup_step BACKUP_STEP\tDo a simulation backup/checkpoint every BACKUP_STEP\n");
     printf("  -r, --resume RESUME_STEP\tResume the simulation from the RESUME_STEP generations\n");
     printf("  -s, --seed SEED\tChange the seed for the pseudo random generator\n");
+    printf("  -T, --thread THREAD\tChange the number of threads\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -83,8 +85,9 @@ int main(int argc, char* argv[]) {
     int resume = -1;
     int backup_step = -1;
     int seed = -1;
+    int nb_threads=1;
 
-    const char * options_list = "Hn:w:h:m:g:b:r:s:";
+    const char * options_list = "Hn:w:h:m:g:b:r:s:T:";
     static struct option long_options_list[] = {
             // Print help
             { "help",     no_argument,        NULL, 'H' },
@@ -104,6 +107,8 @@ int main(int argc, char* argv[]) {
             { "backup_step", required_argument,  NULL, 'b' },
             // Seed
             { "seed", required_argument,  NULL, 's' },
+            // Number of threads
+            { "nb_threads", required_argument,  NULL, 'T' },
             { 0, 0, 0, 0 }
     };
 
@@ -152,6 +157,10 @@ int main(int argc, char* argv[]) {
                 nbstep = atoi(optarg);
                 break;
             }
+            case 'T' : {
+                nb_threads = atoi(optarg);
+                break;
+            }
             default : {
                 // An error message is printed in getopt_long, we just need to exit
                 printf("Error unknown parameter\n");
@@ -165,7 +174,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     printf("Start ExpManager\n");
-
+    omp_set_num_threads(nb_threads);
     if (resume >= 0) {
         if ((width != -1) || (height != -1)|| (mutation_rate != -1.0) || (genome_size != -1) ||
             (backup_step != -1) || (seed != -1)) {

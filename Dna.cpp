@@ -3,6 +3,7 @@
 //
 
 #include "Dna.h"
+#include "omp.h"
 
 #include <cassert>
 
@@ -125,6 +126,7 @@ void Dna::do_duplication(int pos_1, int pos_2, int pos_3) {
 int Dna::promoter_at(int pos) {
     int prom_dist[PROM_SIZE];
     int dist_lead = 0;
+    #pragma omp parallel for shared(dist_lead)
     for (int motif_id = 0; motif_id < PROM_SIZE; motif_id++) {
         int search_pos = pos + motif_id;
         if (search_pos >= seq_.size())
@@ -132,6 +134,8 @@ int Dna::promoter_at(int pos) {
         // Searching for the promoter
         prom_dist[motif_id] =
                 PROM_SEQ[motif_id] == seq_[search_pos] ? 0 : 1;
+                
+        #pragma omp atomic     
         dist_lead += prom_dist[motif_id];
     }
     return dist_lead;
