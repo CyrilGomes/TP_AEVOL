@@ -9,7 +9,9 @@
 
 Dna::Dna(int length, Threefry::Gen &&rng) : seq_(length) {
     // Generate a random genome
+    #pragma omp parallel for shared(seq_) 
     for (int32_t i = 0; i < length; i++) {
+        #pragma omp atomic 
         seq_[i] = '0' + rng.random(NB_BASE);
     }
 }
@@ -158,6 +160,7 @@ int Dna::terminator_at(int pos) {
         if (left >= size) left -= size;
 
         // Search for the terminators
+        #pragma omp atomic  
         term_dist[motif_id] = seq_[right] != seq_[left] ? 1 : 0;
         dist_term_lead+=term_dist[motif_id];
     }
