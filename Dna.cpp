@@ -9,9 +9,7 @@
 
 Dna::Dna(int length, Threefry::Gen &&rng) : seq_(length) {
     // Generate a random genome
-    #pragma omp parallel for shared(seq_) 
     for (int32_t i = 0; i < length; i++) {
-        #pragma omp atomic 
         seq_[i] = '0' + rng.random(NB_BASE);
     }
 }

@@ -666,20 +666,8 @@ void Organism::look_for_new_promoters_starting_between(int32_t pos_1, int32_t po
 
 
     if (pos_1 >= pos_2) {
-        #pragma omp parallel
-        {
-            #pragma omp single
-            {
-                #pragma omp task
-                {
-                    look_for_new_promoters_starting_after(pos_1);
-                }
-                #pragma omp task
-                {
-                    look_for_new_promoters_starting_before(pos_2);
-                }
-            }
-        }
+        look_for_new_promoters_starting_after(pos_1);
+        look_for_new_promoters_starting_before(pos_2);
         return;
 
     }
