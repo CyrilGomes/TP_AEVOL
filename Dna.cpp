@@ -9,7 +9,9 @@
 
 Dna::Dna(int length, Threefry::Gen &&rng) : seq_(length) {
     // Generate a random genome
+    #pragma omp parallel for shared(seq_) 
     for (int32_t i = 0; i < length; i++) {
+        #pragma omp atomic 
         seq_[i] = '0' + rng.random(NB_BASE);
     }
 }
@@ -146,9 +148,13 @@ int Dna::promoter_at(int pos) {
 // a terminator look like : a b c d X X !d !c !b !a
 int Dna::terminator_at(int pos) {
     int term_dist[TERM_STEM_SIZE];
+<<<<<<< HEAD
     int size=length();
     int dist_term_lead=0;
     //#pragma omp simd
+=======
+    #pragma omp parallel for shared(term_dist) firstprivate(pos)
+>>>>>>> a241cba0e162884dc7d823ce342987296c842866
     for (int motif_id = 0; motif_id < TERM_STEM_SIZE; motif_id++) {
         int right = pos + motif_id;
         int left = pos + (TERM_SIZE - 1) - motif_id;
@@ -158,6 +164,7 @@ int Dna::terminator_at(int pos) {
         if (left >= size) left -= size;
 
         // Search for the terminators
+        #pragma omp atomic  
         term_dist[motif_id] = seq_[right] != seq_[left] ? 1 : 0;
         dist_term_lead+=term_dist[motif_id];
     }
