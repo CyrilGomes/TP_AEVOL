@@ -126,16 +126,17 @@ void Dna::do_duplication(int pos_1, int pos_2, int pos_3) {
 int Dna::promoter_at(int pos) {
     int prom_dist[PROM_SIZE];
     int dist_lead = 0;
-    #pragma omp parallel for shared(dist_lead)
+    int size = seq_.size();
+    //#pragma omp parallel for reduction(+:dist_lead)
+    //#pragma omp simd
     for (int motif_id = 0; motif_id < PROM_SIZE; motif_id++) {
         int search_pos = pos + motif_id;
-        if (search_pos >= seq_.size())
-            search_pos -= seq_.size();
+        if (search_pos >= size)
+            search_pos -= size;
         // Searching for the promoter
         prom_dist[motif_id] =
                 PROM_SEQ[motif_id] == seq_[search_pos] ? 0 : 1;
                 
-        #pragma omp atomic     
         dist_lead += prom_dist[motif_id];
     }
     return dist_lead;
@@ -145,21 +146,21 @@ int Dna::promoter_at(int pos) {
 // a terminator look like : a b c d X X !d !c !b !a
 int Dna::terminator_at(int pos) {
     int term_dist[TERM_STEM_SIZE];
+    int size=length();
+    int dist_term_lead=0;
+    //#pragma omp simd
     for (int motif_id = 0; motif_id < TERM_STEM_SIZE; motif_id++) {
         int right = pos + motif_id;
         int left = pos + (TERM_SIZE - 1) - motif_id;
 
         // loop back the dna inf needed
-        if (right >= length()) right -= length();
-        if (left >= length()) left -= length();
+        if (right >= size) right -= size;
+        if (left >= size) left -= size;
 
         // Search for the terminators
         term_dist[motif_id] = seq_[right] != seq_[left] ? 1 : 0;
+        dist_term_lead+=term_dist[motif_id];
     }
-    int dist_term_lead = term_dist[0] +
-                         term_dist[1] +
-                         term_dist[2] +
-                         term_dist[3];
 
     return dist_term_lead;
 }

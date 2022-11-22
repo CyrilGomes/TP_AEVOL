@@ -1,0 +1,12 @@
+Après avoir utilisé Intel advisor, nous avons observé que :
+    - promoter_at :
+        - séquentiel : 5.897s
+        - parallel for avec atomic :
+        - parallel for avec réduction :
+        - simd : 6.357s 
+
+    - terminator_at :
+        - séquentiel : 11.491s
+        - parallel for avec atomic :
+        - parallel for avec réduction :
+        - simd : 11.990s 

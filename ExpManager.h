@@ -55,7 +55,7 @@ public:
 
     void load(int t) final;
 
-    void run_evolution(int nb_gen) override;
+    void run_evolution(int nb_gen,int repeat) override;
 
 private:
     void run_a_step();

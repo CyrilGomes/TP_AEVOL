@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <zlib.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -35,7 +36,6 @@ using namespace std;
 #include "AeTime.h"
 #include "Gaussian.h"
 #include "omp.h"
-
 // For time tracing
 #include "Timetracer.h"
 
@@ -99,7 +99,6 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
 
     // Initializing the PRNGs
-    #pragma omp parallel for 
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
@@ -120,7 +119,6 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
     printf("Populating the environment\n");
 
     // Create a population of clones based on the randomly generated organism
-    #pragma omp parallel for
     for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
         prev_internal_organisms_[indiv_id] = internal_organisms_[indiv_id] =
                 std::make_shared<Organism>(internal_organisms_[0]);
@@ -150,8 +148,7 @@ ExpManager::ExpManager(int time) {
     printf("Initialized environmental target %f\n", geometric_area);
 
     dna_mutator_array_ = new DnaMutator *[nb_indivs_];
-
-    #pragma omp parallel for 
+ 
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
@@ -417,9 +414,9 @@ void ExpManager::run_a_step() {
  *
  * @param nb_gen : Number of generations to simulate
  */
-void ExpManager::run_evolution(int nb_gen) {
-    INIT_TRACER("trace.csv", {"FirstEvaluation", "STEP"});
-
+void ExpManager::run_evolution(int nb_gen,int repeat) {
+    string filename = "trace_" + to_string(repeat) + ".csv";
+    INIT_TRACER(filename.c_str(), {"FirstEvaluation", "STEP"});
     TIMESTAMP(0, {
         for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
             internal_organisms_[indiv_id]->locate_promoters();
