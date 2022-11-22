@@ -138,7 +138,7 @@ int Dna::promoter_at(int pos) {
         // Searching for the promoter
         prom_dist[motif_id] =
                 PROM_SEQ[motif_id] == seq_[search_pos] ? 0 : 1;
-                
+    
         dist_lead += prom_dist[motif_id];
     }
     return dist_lead;
@@ -148,6 +148,7 @@ int Dna::promoter_at(int pos) {
 // a terminator look like : a b c d X X !d !c !b !a
 int Dna::terminator_at(int pos) {
     int term_dist[TERM_STEM_SIZE];
+
     int size=length();
     int dist_term_lead=0;
     //#pragma omp simd
@@ -160,7 +161,6 @@ int Dna::terminator_at(int pos) {
         if (left >= size) left -= size;
 
         // Search for the terminators
-        #pragma omp atomic  
         term_dist[motif_id] = seq_[right] != seq_[left] ? 1 : 0;
         dist_term_lead+=term_dist[motif_id];
     }
