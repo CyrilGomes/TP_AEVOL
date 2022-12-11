@@ -182,8 +182,9 @@ int main(int argc, char* argv[]) {
 #endif
 
     printf("Start ExpManager\n");
-    #ifdef OMP_USE
+    #ifdef USE_OMP
         omp_set_num_threads(nb_threads);
+        printf("Activate OpenMP\n");
     #endif
     if (resume >= 0) {
         if ((width != -1) || (height != -1)|| (mutation_rate != -1.0) || (genome_size != -1) ||
