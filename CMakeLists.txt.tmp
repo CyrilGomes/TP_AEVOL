@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21.0)
 project(pdc_mini_aevol)
 
+find_package(IntelDPCPP REQUIRED)
 set(CMAKE_CXX_STANDARD 14)
 
 set(DO_TRACES ON CACHE BOOL "Whether to enable the Traces library")
@@ -30,7 +31,9 @@ if ( USE_CUDA )
 endif ( USE_CUDA )
 
 if ( USE_OMP )
-    find_package(OpenMP REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qopenmp -DUSE_OMP -march=native")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -qopenmp -DUSE_OMP -march=native")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -qopenmp -DUSE_OMP -march=native")
 endif ( USE_OMP )
 
 find_package(ZLIB REQUIRED)
@@ -48,15 +51,6 @@ add_library(micro_aevol
 
 target_link_libraries(micro_aevol PUBLIC ZLIB::ZLIB)
 
-if ( OPENMP_FOUND )
-    target_link_libraries(micro_aevol PUBLIC OpenMP::OpenMP_CXX)
-    target_compile_definitions(micro_aevol PUBLIC USE_OMP)
-    #add info of the optimizations with -fopt-info 
-    target_compile_options(micro_aevol PUBLIC -fopt-info-omp)
-
-
-endif ()
-
 add_executable(micro_aevol_cpu main.cpp)
 target_link_libraries(micro_aevol_cpu micro_aevol)
 
@@ -66,3 +60,4 @@ if ( USE_CUDA )
     # nvToolsExt for enhanced profiling (ad-hoc chunks)
     target_link_libraries(micro_aevol_gpu PUBLIC cuda_micro_aevol micro_aevol)
 endif ()
+

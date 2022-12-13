@@ -123,22 +123,54 @@ void Dna::do_duplication(int pos_1, int pos_2, int pos_3) {
     }
 }
 
+void Dna::extend_seq_to_prom_size() {
+    // Extend the sequence to avoid modulo, create a copy, and extend it and then put it in seq_ext
+    std::vector<char> seq_cpy = seq_;
+    seq_cpy.insert(seq_cpy.end(), seq_.begin(), seq_.begin() + PROM_SIZE);
+    seq_ext = seq_cpy.data();
+}
+
 int Dna::promoter_at(int pos) {
     int prom_dist[PROM_SIZE];
     int dist_lead = 0;
-    int size = seq_.size();
-    //#pragma omp parallel for reduction(+:dist_lead)
-    //#pragma omp simd
+
+// Promsize = 10
+// seq=abcabc
+// seq_ext=abcabcabca
+
+
+// seq.size =10
+// prom.size =5
+// seq_ext.size = 10+5=15
+
+// pos = 9
+// serach_pos = 9+4 =13
+
+    #pragma omp simd reduction(+:dist_lead)
     for (int motif_id = 0; motif_id < PROM_SIZE; motif_id++) {
-        int search_pos = pos + motif_id;
-        if (search_pos >= size)
-            search_pos -= size;
+
         // Searching for the promoter
-        prom_dist[motif_id] =
-                PROM_SEQ[motif_id] == seq_[search_pos] ? 0 : 1;
-    
+        prom_dist[motif_id] = PROM_SEQ[motif_id] != seq_ext[pos + motif_id];
         dist_lead += prom_dist[motif_id];
+
+
     }
+
+
+    //dummy simd loop to check if its working
+
+    int arr1[10] = {1,2,3,4,5,6,7,8,9,10};
+    int arr2[10] = {1,2,3,4,5,6,7,8,9,10};
+
+    int sum = 0;
+
+    #pragma omp simd reduction(+:sum)
+    for (int i = 0; i < 10; i++) {
+        sum += arr1[i] * arr2[i];
+    }
+
+    printf("sum = %d", sum);
+    
     return dist_lead;
 }
 
@@ -149,17 +181,16 @@ int Dna::terminator_at(int pos) {
 
     int size=length();
     int dist_term_lead=0;
-    //#pragma omp simd
+    #pragma omp simd reduction(+:dist_term_lead)
     for (int motif_id = 0; motif_id < TERM_STEM_SIZE; motif_id++) {
         int right = pos + motif_id;
         int left = pos + (TERM_SIZE - 1) - motif_id;
 
         // loop back the dna inf needed
-        if (right >= size) right -= size;
-        if (left >= size) left -= size;
+        
 
         // Search for the terminators
-        term_dist[motif_id] = seq_[right] != seq_[left] ? 1 : 0;
+        term_dist[motif_id] = seq_ext[right] != seq_ext[left];
         dist_term_lead+=term_dist[motif_id];
     }
 

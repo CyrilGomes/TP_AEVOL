@@ -51,6 +51,9 @@ public:
     bool protein_stop(int pos);
 
     int codon_at(int pos);
+    void extend_seq_to_prom_size();
 
     std::vector<char> seq_;
+    char* seq_ext;
+
 };

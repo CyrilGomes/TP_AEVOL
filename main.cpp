@@ -24,8 +24,6 @@
 //
 // ***************************************************************************************************************
 
-
-
 #include <iostream>
 #include <getopt.h>
 #include <cstring>
@@ -37,12 +35,14 @@
 #include "ExpManager.h"
 #include "omp.h"
 
-
-void print_help(char* prog_path) {
+void print_help(char *prog_path)
+{
     // Get the program file-name in prog_name (strip prog_path of the path)
-    char* prog_name; // No new, it will point to somewhere inside prog_path
-    if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-    else prog_name = prog_path;
+    char *prog_name; // No new, it will point to somewhere inside prog_path
+    if ((prog_name = strrchr(prog_path, '/')))
+        prog_name++;
+    else
+        prog_name = prog_path;
 
     printf("******************************************************************************\n");
     printf("*                                                                            *\n");
@@ -76,7 +76,8 @@ void print_help(char* prog_path) {
     printf("  -R, --repeat REPEAT\tSet the number of repeats\n");
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 
     int nbstep = -1;
     int width = -1;
@@ -86,94 +87,105 @@ int main(int argc, char* argv[]) {
     int resume = -1;
     int backup_step = -1;
     int seed = -1;
-    int nb_threads=1;
-    int repeat=-1;
+    int nb_threads = 1;
+    int repeat = -1;
 
-    const char * options_list = "Hn:w:h:m:g:b:r:s:T:R:";
+    const char *options_list = "Hn:w:h:m:g:b:r:s:T:R:";
     static struct option long_options_list[] = {
-            // Print help
-            { "help",     no_argument,        NULL, 'H' },
-            // Number of generations to be run
-            { "nsteps",  required_argument,  NULL, 'n' },
-            // Width size of the grid
-            { "width", required_argument,  NULL, 'w' },
-            // Height size of the grid
-            { "height", required_argument,  NULL, 'h' },
-            // Mutation rate
-            { "mutation_rate", required_argument,  NULL, 'm' },
-            // Size of the initial genome
-            { "genome_size", required_argument,  NULL, 'g' },
-            // Resuming from generation X
-            { "resume", required_argument,  NULL, 'r' },
-            // Backup step
-            { "backup_step", required_argument,  NULL, 'b' },
-            // Seed
-            { "seed", required_argument,  NULL, 's' },
-            // Number of threads
-            { "nb_threads", required_argument,  NULL, 'T' },
-            // Repeats
-            { "repeat", required_argument,  NULL, 'R' },
-            { 0, 0, 0, 0 }
-    };
-
+        // Print help
+        {"help", no_argument, NULL, 'H'},
+        // Number of generations to be run
+        {"nsteps", required_argument, NULL, 'n'},
+        // Width size of the grid
+        {"width", required_argument, NULL, 'w'},
+        // Height size of the grid
+        {"height", required_argument, NULL, 'h'},
+        // Mutation rate
+        {"mutation_rate", required_argument, NULL, 'm'},
+        // Size of the initial genome
+        {"genome_size", required_argument, NULL, 'g'},
+        // Resuming from generation X
+        {"resume", required_argument, NULL, 'r'},
+        // Backup step
+        {"backup_step", required_argument, NULL, 'b'},
+        // Seed
+        {"seed", required_argument, NULL, 's'},
+        // Number of threads
+        {"nb_threads", required_argument, NULL, 'T'},
+        // Repeats
+        {"repeat", required_argument, NULL, 'R'},
+        {0, 0, 0, 0}};
 
     // -------------------------------------------------------------------------
     // 3) Get actual values of the command-line options
     // -------------------------------------------------------------------------
     int option;
     while ((option =
-                    getopt_long(argc, argv, options_list, long_options_list, NULL))
-           != -1) {
-        switch (option) {
-            case 'H' : {
-                print_help(argv[0]);
-                exit(EXIT_SUCCESS);
-            }
-            case 'w' : {
-                width = atoi(optarg);
-                break;
-            }
-            case 'h' : {
-                height = atoi(optarg);
-                break;
-            }
-            case 'm' : {
-                mutation_rate = atof(optarg);
-                break;
-            }
-            case 'g' : {
-                genome_size = atoi(optarg);
-                break;
-            }
-            case 'r' : {
-                resume = atoi(optarg);
-                break;
-            }
-            case 'b' : {
-                backup_step = atoi(optarg);
-                break;
-            }
-            case 's' : {
-                seed = atoi(optarg);
-                break;
-            }
-            case 'n' : {
-                nbstep = atoi(optarg);
-                break;
-            }
-            case 'T' : {
-                nb_threads = atoi(optarg);
-                break;
-            }
-            case 'R' : {
-                repeat = atoi(optarg);
-                break;
-            }
-            default : {
-                // An error message is printed in getopt_long, we just need to exit
-                printf("Error unknown parameter\n");
-                exit(EXIT_FAILURE);
-            }
+                getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
+    {
+        switch (option)
+        {
+        case 'H':
+        {
+            print_help(argv[0]);
+            exit(EXIT_SUCCESS);
+        }
+        case 'w':
+        {
+            width = atoi(optarg);
+            break;
+        }
+        case 'h':
+        {
+            height = atoi(optarg);
+            break;
+        }
+        case 'm':
+        {
+            mutation_rate = atof(optarg);
+            break;
+        }
+        case 'g':
+        {
+            genome_size = atoi(optarg);
+            break;
+        }
+        case 'r':
+        {
+            resume = atoi(optarg);
+            break;
+        }
+        case 'b':
+        {
+            backup_step = atoi(optarg);
+            break;
+        }
+        case 's':
+        {
+            seed = atoi(optarg);
+            break;
+        }
+        case 'n':
+        {
+            nbstep = atoi(optarg);
+            break;
+        }
+        case 'T':
+        {
+            nb_threads = atoi(optarg);
+            break;
+        }
+        case 'R':
+        {
+            repeat = atoi(optarg);
+            break;
+        }
+        default:
+        {
+            // An error message is printed in getopt_long, we just need to exit
+            printf("Error unknown parameter\n");
+            exit(EXIT_FAILURE);
+        }
         }
     }
 
@@ -182,42 +194,59 @@ int main(int argc, char* argv[]) {
 #endif
 
     printf("Start ExpManager\n");
-    #ifdef OMP_USE
-        omp_set_num_threads(nb_threads);
-    #endif
-    if (resume >= 0) {
-        if ((width != -1) || (height != -1)|| (mutation_rate != -1.0) || (genome_size != -1) ||
-            (backup_step != -1) || (seed != -1)) {
+#ifdef USE_OMP
+    
+    omp_set_num_threads(nb_threads);
+    printf("Number of threads : %d\n", nb_threads);
+#endif
+    if (resume >= 0)
+    {
+        if ((width != -1) || (height != -1) || (mutation_rate != -1.0) || (genome_size != -1) ||
+            (backup_step != -1) || (seed != -1))
+        {
             printf("Parameter(s) can not change during the simulation (i.e. when resuming a simulation, parameter(s) can not change)\n");
             exit(EXIT_FAILURE);
         }
-        if (nbstep == -1) nbstep = 1000;
-    } else {
-        if (nbstep == -1) nbstep = 1000;
-        if (width == -1) width = 32;
-        if (height == -1) height = 32;
-        if (mutation_rate == -1) mutation_rate = 0.00001;
-        if (genome_size == -1) genome_size = 5000;
-        if (backup_step == -1) backup_step = 1000;
-        if (seed == -1) seed = 566545665;
+        if (nbstep == -1)
+            nbstep = 1000;
+    }
+    else
+    {
+        if (nbstep == -1)
+            nbstep = 1000;
+        if (width == -1)
+            width = 32;
+        if (height == -1)
+            height = 32;
+        if (mutation_rate == -1)
+            mutation_rate = 0.00001;
+        if (genome_size == -1)
+            genome_size = 5000;
+        if (backup_step == -1)
+            backup_step = 1000;
+        if (seed == -1)
+            seed = 566545665;
     }
 
     Abstract_ExpManager *exp_manager;
-    if (resume == -1) {
+    if (resume == -1)
+    {
         exp_manager = new ExpManager(height, width, seed, mutation_rate, genome_size, backup_step);
-    } else {
+    }
+    else
+    {
         printf("Resuming...\n");
         exp_manager = new ExpManager(resume);
     }
 
 #ifdef USE_CUDA
     // Not very clean but the goal is to re-use the initialization on the host to transfer data to device
-    auto* tmp = dynamic_cast<ExpManager *>(exp_manager);
+    auto *tmp = dynamic_cast<ExpManager *>(exp_manager);
     exp_manager = new cuExpManager(tmp);
     delete tmp;
 #endif
 
-    exp_manager->run_evolution(nbstep,repeat);
+    exp_manager->run_evolution(nbstep, repeat);
 
     delete exp_manager;
 

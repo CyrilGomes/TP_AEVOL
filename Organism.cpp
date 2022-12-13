@@ -180,8 +180,13 @@ void Organism::compute_RNA() {
 
     rnas.resize(promoters_.size());
 
-    for (const auto &prom_pair: promoters_) {
-        int prom_pos = prom_pair.first;
+    //create an iterator on the map, to iterate over size
+     
+    //const std::pair<const int, Organism::ErrorType> &prom_pair: promoters_
+    //#pragma omp parallel for
+    for (auto it = promoters_.begin(); it != promoters_.end(); ++it) {
+
+        int prom_pos = it->first;
 
         /* Search for terminators */
         int cur_pos = prom_pos + PROM_SIZE;
@@ -190,7 +195,7 @@ void Organism::compute_RNA() {
         int start_pos = cur_pos;
 
         bool terminator_found = false;
-
+        
         while (!terminator_found) {
             int term_dist_leading = dna_->terminator_at(cur_pos);
 
@@ -218,17 +223,21 @@ void Organism::compute_RNA() {
                 rna_length = rna_end - start_pos;
 
             if (rna_length > 0) {
-                int glob_rna_idx = rna_count_;
-                rna_count_ = rna_count_ + 1;
 
+                int glob_rna_idx = rna_count_++;
+  
                 rnas[glob_rna_idx] = new RNA(
                         prom_pos,
                         rna_end,
-                        1.0 - std::fabs(((float) prom_pair.second)) / 5.0,
+                        1.0 - std::fabs(((float) it->second)) / 5.0,
                         rna_length);
+                
+
             }
         }
     }
+        
+
 }
 
 void Organism::search_start_protein() {
@@ -316,6 +325,7 @@ void Organism::compute_protein() {
 }
 
 void Organism::translate_protein() {
+    // #pragma omp simd
     for (int protein_idx = 0; protein_idx < protein_count_; protein_idx++) {
         auto* protein = proteins[protein_idx];
         if (protein->is_init_) {
@@ -490,6 +500,7 @@ void Organism::translate_protein() {
 
     std::map<int, Protein *> lookup;
 
+    // #pragma omp parallel for
     for (int protein_idx = 0; protein_idx < protein_count_; protein_idx++) {
         auto* protein = proteins[protein_idx];
         if (protein->is_init_) {
@@ -568,6 +579,7 @@ void Organism::compute_phenotype() {
 void Organism::compute_fitness(const double *target) {
     metaerror = 0.0;
 
+    //#pragma omp simd reduction(+:metaerror)
     for (int fuzzy_idx = 0; fuzzy_idx < FUZZY_SAMPLING; fuzzy_idx++) {
         delta[fuzzy_idx] = fabs(phenotype[fuzzy_idx] - target[fuzzy_idx]);
         delta[fuzzy_idx] /= (double) FUZZY_SAMPLING;
@@ -654,6 +666,7 @@ void Organism::remove_promoters_starting_before(int32_t pos) {
 
 void Organism::add_new_promoter(int32_t position, int8_t error) {
     // TODO: Insertion should not always occur, especially if promoter become better or worse ?
+    
     // Promoters are deleted anyway if victim of mutation. the IF stays unnecessary
     if (promoters_.find(position) == promoters_.end())
         promoters_[position] = error;
@@ -664,6 +677,7 @@ void Organism::look_for_new_promoters_starting_between(int32_t pos_1, int32_t po
     // As positions  0 and dna_->length() are equivalent, it's preferable to
     // keep 0 for pos_1 and dna_->length() for pos_2.
 
+    dna_->extend_seq_to_prom_size();
 
     if (pos_1 >= pos_2) {
         look_for_new_promoters_starting_after(pos_1);
@@ -673,6 +687,7 @@ void Organism::look_for_new_promoters_starting_between(int32_t pos_1, int32_t po
     }
     // Hamming distance of the sequence from the promoter consensus
     for (int32_t i = pos_1; i < pos_2; i++) {
+
         int8_t dist = dna_->promoter_at(i);
 
         if (dist <= PROM_MAX_DIFF) { // dist takes the hamming distance of the sequence from the consensus
@@ -694,6 +709,7 @@ void Organism::look_for_new_promoters_starting_after(int32_t pos) {
 
 void Organism::look_for_new_promoters_starting_before(int32_t pos) {
     // Hamming distance of the sequence from the promoter consensus
+
     for (int32_t i = 0; i < pos; i++) {
 
         int dist = dna_->promoter_at(i);

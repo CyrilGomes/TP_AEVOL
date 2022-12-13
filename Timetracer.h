@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 
-#ifdef OMP_USE
+#ifdef USE_OMP
 
 #include <omp.h>
 
@@ -16,7 +16,7 @@
 #define CSV_HEADER "Gen,Resource,Stamp,TimeStamp_Start,TimeStamp_End,Duration,Indiv_id"
 #define GET_TIME std::chrono::steady_clock::now().time_since_epoch().count()
 
-#ifdef OMP_USE
+#ifdef USE_OMP
 #define GET_RESOURCE omp_get_thread_num()
 #define GET_MAX_RESOURCES omp_get_max_threads()
 #else

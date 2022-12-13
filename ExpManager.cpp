@@ -76,7 +76,6 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
     target = new double[FUZZY_SAMPLING];
     double geometric_area = 0.0;
-    #pragma omp parallel for reduction(+:geometric_area) 
     for (int i = 0; i < FUZZY_SAMPLING; i++) {
         double pt_i = ((double) i) / (double) FUZZY_SAMPLING;
 
@@ -367,6 +366,7 @@ void ExpManager::prepare_mutation(int indiv_id) const {
 void ExpManager::run_a_step() {
 
     // Running the simulation process for each organism
+    
     for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
         selection(indiv_id);
         prepare_mutation(indiv_id);
