@@ -231,13 +231,9 @@ void Organism::compute_RNA() {
                         rna_end,
                         1.0 - std::fabs(((float) it->second)) / 5.0,
                         rna_length);
-                
-
             }
         }
     }
-        
-
 }
 
 void Organism::search_start_protein() {
@@ -325,7 +321,7 @@ void Organism::compute_protein() {
 }
 
 void Organism::translate_protein() {
-    // #pragma omp simd
+    #pragma omp simd
     for (int protein_idx = 0; protein_idx < protein_count_; protein_idx++) {
         auto* protein = proteins[protein_idx];
         if (protein->is_init_) {
