@@ -1,0 +1,9 @@
+simulation0 = sequentiel
+simulation1 = expmanager
+simulation2 =seqext
+simulation3 =translate_protein
+simulation4 = compute_fitness
+simulation5= tasks
+simulation6= remove tasks
+simulation7= run_a_step -> big improvments
+simulation8 = run_evolution
