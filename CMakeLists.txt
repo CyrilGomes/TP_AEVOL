@@ -7,6 +7,8 @@ set(DO_TRACES ON CACHE BOOL "Whether to enable the Traces library")
 set(USE_OMP OFF CACHE BOOL "Whether to enable OpenMP parallelization")
 set(USE_CUDA OFF CACHE BOOL "Whether to enable CUDA parallelization")
 
+
+
 if ( DO_TRACES )
     add_definitions(-DTRACES)
     message( STATUS "Traces are activated" )
@@ -52,7 +54,7 @@ if ( OPENMP_FOUND )
     target_link_libraries(micro_aevol PUBLIC OpenMP::OpenMP_CXX)
     target_compile_definitions(micro_aevol PUBLIC USE_OMP)
     #add info of the optimizations with -fopt-info 
-    target_compile_options(micro_aevol PUBLIC -fopt-info-omp)
+    target_compile_options(micro_aevol PUBLIC -ftree-vectorize)
 
 
 endif ()
