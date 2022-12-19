@@ -1,3 +1,8 @@
+# Note
+
+Ces simulations ont été lancées avec le mode de compilation par défaut. Nous avons choisi d'abandonner la poursuite de ce type de simulations.
+
+
 # Optimisations
 
 Nous avons choisi de nous concentrer sur de l'optimisation CPU avecOpen MP. Les simulations sont réalisées plusieurs fois pour éviter toutes valeurs potentiellement faussées.

@@ -183,7 +183,7 @@ void Organism::compute_RNA() {
     //create an iterator on the map, to iterate over size
      
     //const std::pair<const int, Organism::ErrorType> &prom_pair: promoters_
-    //#pragma omp parallel for
+    // #pragma omp parallel for
     for (auto it = promoters_.begin(); it != promoters_.end(); ++it) {
 
         int prom_pos = it->first;
@@ -496,7 +496,6 @@ void Organism::translate_protein() {
 
     std::map<int, Protein *> lookup;
 
-    // #pragma omp parallel for
     for (int protein_idx = 0; protein_idx < protein_count_; protein_idx++) {
         auto* protein = proteins[protein_idx];
         if (protein->is_init_) {
@@ -575,7 +574,7 @@ void Organism::compute_phenotype() {
 void Organism::compute_fitness(const double *target) {
     metaerror = 0.0;
 
-    //#pragma omp simd reduction(+:metaerror)
+    #pragma omp simd reduction(+:metaerror)
     for (int fuzzy_idx = 0; fuzzy_idx < FUZZY_SAMPLING; fuzzy_idx++) {
         delta[fuzzy_idx] = fabs(phenotype[fuzzy_idx] - target[fuzzy_idx]);
         delta[fuzzy_idx] /= (double) FUZZY_SAMPLING;
