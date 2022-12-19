@@ -76,6 +76,7 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
     target = new double[FUZZY_SAMPLING];
     double geometric_area = 0.0;
+    #pragma omp parallel for reduction(+:geometric_area)
     for (int i = 0; i < FUZZY_SAMPLING; i++) {
         double pt_i = ((double) i) / (double) FUZZY_SAMPLING;
 
@@ -98,6 +99,7 @@ ExpManager::ExpManager(int grid_height, int grid_width, int seed, double mutatio
 
 
     // Initializing the PRNGs
+    #pragma omp parallel for
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
@@ -147,7 +149,8 @@ ExpManager::ExpManager(int time) {
     printf("Initialized environmental target %f\n", geometric_area);
 
     dna_mutator_array_ = new DnaMutator *[nb_indivs_];
- 
+    
+    #pragma omp parallel for
     for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
         dna_mutator_array_[indiv_id] = nullptr;
     }
